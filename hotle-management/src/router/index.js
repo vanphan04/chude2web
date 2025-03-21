@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from "vue-router";
 import Dashboard from "../views/Dashboard.vue";
 import Login from "../views/Login.vue";
 import Rooms from "../views/Rooms.vue";
+import Reservations from "../views/Reservations.vue";
 import Customers from "../views/Customers.vue";
 import Employees from "../views/Employees.vue";
 
@@ -9,6 +10,7 @@ const routes = [
   { path: "/login", component: Login },
   { path: "/", component: Dashboard, meta: { requiresAuth: true } },
   { path: "/rooms", component: Rooms, meta: { requiresAuth: true } },
+  { path: "/reservations", component: Reservations, meta: { requiresAuth: true } },
   { path: "/customers", component: Customers, meta: { requiresAuth: true } },
   { path: "/employees", component: Employees, meta: { requiresAuth: true, roles: ["admin"] } } // ❗ CHỈ ADMIN mới vào được
 ];

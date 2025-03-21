@@ -5,6 +5,7 @@
       <v-spacer></v-spacer>
       <v-btn text to="/">Dashboard</v-btn>
       <v-btn text to="/rooms">Phòng</v-btn>
+      <v-btn text to="/reservations">Đặt Phòng</v-btn>
       <v-btn text to="/customers">Khách Hàng</v-btn>
       <v-btn v-if="role === 'admin'" text to="/employees">Nhân Viên</v-btn> 
       <v-btn v-if="isAuthenticated" text @click="logout">Đăng Xuất</v-btn>
