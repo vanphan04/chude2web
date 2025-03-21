@@ -163,7 +163,7 @@ export default {
     let roomIndex = floor.rooms.findIndex(r => r.id === this.editedRoom.id);
     if (roomIndex !== -1) {
       floor.rooms[roomIndex] = { ...this.editedRoom };
-      this.$forceUpdate(); // Cập nhật lại giao diện
+      this.$forceUpdate(); 
       break;
     }
   }
@@ -174,7 +174,7 @@ export default {
     openBookingDialog(room) {
   if (room.status === "Đã đặt") {
     if (confirm("Bạn có chắc muốn hủy đặt phòng này?")) {
-      room.status = "Trống"; // Hủy đặt phòng
+      room.status = "Trống"; 
     }
     return;
   }

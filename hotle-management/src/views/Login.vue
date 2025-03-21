@@ -32,9 +32,9 @@ export default {
 
       if (users[this.username] && users[this.username].password === this.password) {
         const role = users[this.username].role;
-        localStorage.setItem("token", "fake-jwt-token"); // 🔹 Token giả lập
-        localStorage.setItem("role", role); // 🔹 Lưu quyền của user
-        this.$router.push("/"); // 🔹 Chuyển về trang chủ
+        localStorage.setItem("token", "fake-jwt-token"); 
+        localStorage.setItem("role", role); 
+        this.$router.push("/"); 
       } else {
         this.errorMessage = "Sai tên đăng nhập hoặc mật khẩu!";
       }
