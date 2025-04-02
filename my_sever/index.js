@@ -4,9 +4,11 @@ const mysql = require('mysql2');
 
 const app = express();
 const PORT = 3000;
+app.use(cors());
+
 
 app.use(cors({
-  origin: 'http://localhost:5173',  // Chỉ cho phép frontend truy cập
+  origin: ['http://localhost:5173'],  // Chỉ cho phép frontend truy cập
   methods: ['GET', 'POST', 'PUT', 'DELETE'],  // Cho phép các phương thức HTTP
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
@@ -71,11 +73,14 @@ app.delete('/room/:id', (req, res) => {
 
 // 2. Quản lý đặt phòng
 app.post('/booking', (req, res) => {
-  const { checkin, checkout, roomid, cusid, staffid } = req.body;
-  db.query('INSERT INTO booking (checkin, checkout, roomid, cusid, staffid) VALUES (?, ?, ?, ?, ?)',
-    [checkin, checkout, roomid, cusid, staffid], (err, result) => {
-      if (err) res.status(500).json({ error: 'Lỗi đặt phòng' });
-      else res.json({ message: 'Đặt phòng thành công', id: result.insertId });
+  const { name, phone, roomid, checkin, checkout } = req.body;
+  db.query('INSERT INTO booking (name, phone, roomid, checkin, checkout) VALUES (?, ?, ?, ?, ?)',
+    [name, phone, roomid, checkin, checkout], (err, result) => {
+      if (err) {
+        res.status(500).json({ error: 'Lỗi đặt phòng' });
+      } else {
+        res.json({ message: 'Đặt phòng thành công', id: result.insertId });
+      }
     });
 });
 
@@ -85,7 +90,6 @@ app.get('/booking', (req, res) => {
     else res.json(results);
   });
 });
-
 // 3. Quản lý khách hàng
 app.get('/customer', (req, res) => {
   db.query('SELECT * FROM customer', (err, results) => {

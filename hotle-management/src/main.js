@@ -9,6 +9,7 @@ import "@mdi/font/css/materialdesignicons.css"; // Icon Vuetify
 // Import tất cả component và directives của Vuetify
 import * as components from "vuetify/components";
 import * as directives from "vuetify/directives";
+import axios from 'axios';
 
 const vuetify = createVuetify({
   components,
@@ -17,6 +18,7 @@ const vuetify = createVuetify({
 
 const pinia = createPinia();
 const app = createApp(App);
+app.config.globalProperties.$axios = axios;
 
 app.use(pinia);
 app.use(router);
