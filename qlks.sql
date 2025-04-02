@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Mar 27, 2025 at 02:48 AM
+-- Generation Time: Mar 27, 2025 at 03:02 AM
 -- Server version: 5.7.31
 -- PHP Version: 7.4.9
 
@@ -34,7 +34,8 @@ CREATE TABLE IF NOT EXISTS `bill` (
   `paymentdate` date NOT NULL,
   `method` varchar(50) NOT NULL,
   `bookid` int(11) NOT NULL,
-  PRIMARY KEY (`billid`)
+  PRIMARY KEY (`billid`),
+  KEY `bill_ibfk_1` (`bookid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -86,7 +87,15 @@ CREATE TABLE IF NOT EXISTS `room` (
   `status` varchar(255) NOT NULL,
   `image` varchar(255) NOT NULL,
   PRIMARY KEY (`roomid`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
+
+--
+-- Dumping data for table `room`
+--
+
+INSERT INTO `room` (`roomid`, `roomtype`, `price`, `status`, `image`) VALUES
+(2, 'Phòng 1 giường', 250000, 'Trống', ''),
+(3, '2 giường', 500000, 'Trống', '');
 
 -- --------------------------------------------------------
 
@@ -143,7 +152,7 @@ CREATE TABLE IF NOT EXISTS `staff` (
 -- Constraints for table `bill`
 --
 ALTER TABLE `bill`
-  ADD CONSTRAINT `bill_ibfk_1` FOREIGN KEY (`billid`) REFERENCES `booking` (`bookid`);
+  ADD CONSTRAINT `bill_ibfk_1` FOREIGN KEY (`bookid`) REFERENCES `booking` (`bookid`);
 
 --
 -- Constraints for table `booking`
