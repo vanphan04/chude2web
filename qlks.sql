@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Mar 27, 2025 at 03:02 AM
+-- Generation Time: Apr 03, 2025 at 03:13 PM
 -- Server version: 5.7.31
--- PHP Version: 7.4.9
+-- PHP Version: 7.3.21
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -34,8 +34,7 @@ CREATE TABLE IF NOT EXISTS `bill` (
   `paymentdate` date NOT NULL,
   `method` varchar(50) NOT NULL,
   `bookid` int(11) NOT NULL,
-  PRIMARY KEY (`billid`),
-  KEY `bill_ibfk_1` (`bookid`)
+  PRIMARY KEY (`billid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -50,13 +49,27 @@ CREATE TABLE IF NOT EXISTS `booking` (
   `checkin` date NOT NULL,
   `checkout` date NOT NULL,
   `roomid` int(11) NOT NULL,
-  `cusid` int(11) NOT NULL,
-  `staffid` int(11) NOT NULL,
+  `cusid` int(11) DEFAULT NULL,
+  `staffid` int(11) DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `phone` varchar(15) DEFAULT NULL,
   PRIMARY KEY (`bookid`),
   KEY `roomid` (`roomid`),
   KEY `cusid` (`cusid`),
   KEY `staffid` (`staffid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8;
+
+--
+-- Dumping data for table `booking`
+--
+
+INSERT INTO `booking` (`bookid`, `checkin`, `checkout`, `roomid`, `cusid`, `staffid`, `name`, `phone`) VALUES
+(12, '2025-04-02', '2025-04-11', 2, NULL, NULL, 'NGuyên', '0111111111'),
+(13, '2025-04-11', '2025-04-18', 1, NULL, NULL, 'ádsd', '0123456789'),
+(14, '2025-04-24', '2025-04-29', 3, NULL, NULL, 'fg', '0111111111'),
+(15, '2025-04-29', '2025-04-30', 1, NULL, NULL, 'Phan Thanh Văn', '0868254679'),
+(16, '2025-04-15', '2025-04-18', 1, NULL, NULL, 'fghfghfg', '0868254679'),
+(17, '2025-04-29', '2025-04-30', 3, NULL, NULL, 'haha', '0868254679');
 
 -- --------------------------------------------------------
 
@@ -83,7 +96,7 @@ DROP TABLE IF EXISTS `room`;
 CREATE TABLE IF NOT EXISTS `room` (
   `roomid` int(11) NOT NULL AUTO_INCREMENT,
   `roomtype` varchar(255) NOT NULL,
-  `price` int(11) NOT NULL,
+  `price` varchar(50) NOT NULL,
   `status` varchar(255) NOT NULL,
   `image` varchar(255) NOT NULL,
   PRIMARY KEY (`roomid`)
@@ -94,8 +107,9 @@ CREATE TABLE IF NOT EXISTS `room` (
 --
 
 INSERT INTO `room` (`roomid`, `roomtype`, `price`, `status`, `image`) VALUES
-(2, 'Phòng 1 giường', 250000, 'Trống', ''),
-(3, '2 giường', 500000, 'Trống', '');
+(1, 'Đôi', '800.000', 'Đã đặt', ''),
+(2, 'Don', '500000', 'Đặt ngay', ''),
+(3, '3', '10000', 'available', '');
 
 -- --------------------------------------------------------
 
@@ -152,7 +166,7 @@ CREATE TABLE IF NOT EXISTS `staff` (
 -- Constraints for table `bill`
 --
 ALTER TABLE `bill`
-  ADD CONSTRAINT `bill_ibfk_1` FOREIGN KEY (`bookid`) REFERENCES `booking` (`bookid`);
+  ADD CONSTRAINT `bill_ibfk_1` FOREIGN KEY (`billid`) REFERENCES `booking` (`bookid`);
 
 --
 -- Constraints for table `booking`
