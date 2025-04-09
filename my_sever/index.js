@@ -6,13 +6,11 @@ const app = express();
 const PORT = 3000;
 app.use(cors());
 
-
 app.use(cors({
-  origin: ['http://localhost:5173'],  // Chỉ cho phép frontend truy cập
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],  // Cho phép các phương thức HTTP
+  origin: ['http://localhost:5173'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
-
 
 app.use(express.json());
 
@@ -44,7 +42,6 @@ app.get('/room', (req, res) => {
     else res.json(results);
   });
 });
-
 
 app.post('/room', (req, res) => {
   const { roomtype, price, status, image } = req.body;
@@ -90,6 +87,7 @@ app.get('/booking', (req, res) => {
     else res.json(results);
   });
 });
+
 // 3. Quản lý khách hàng
 app.get('/customer', (req, res) => {
   db.query('SELECT * FROM customer', (err, results) => {
@@ -108,10 +106,15 @@ app.post('/customer', (req, res) => {
 });
 
 // 4. Quản lý nhân viên
+// 4. Quản lý nhân viên (sửa lại cho đúng yêu cầu)
 app.get('/staff', (req, res) => {
   db.query('SELECT * FROM staff', (err, results) => {
-    if (err) res.status(500).json({ error: 'Lỗi lấy danh sách nhân viên' });
-    else res.json(results);
+    if (err) {
+      console.error('Lỗi lấy danh sách nhân viên:', err);
+      res.status(500).json({ error: 'Lỗi lấy danh sách nhân viên' });
+    } else {
+      res.json(results);
+    }
   });
 });
 
@@ -119,10 +122,29 @@ app.post('/staff', (req, res) => {
   const { name, phone, email, position } = req.body;
   db.query('INSERT INTO staff (name, phone, email, position) VALUES (?, ?, ?, ?)',
     [name, phone, email, position], (err, result) => {
-      if (err) res.status(500).json({ error: 'Lỗi thêm nhân viên' });
-      else res.json({ message: 'Thêm nhân viên thành công', id: result.insertId });
+      if (err) {
+        console.error('Lỗi thêm nhân viên:', err);
+        res.status(500).json({ error: 'Lỗi thêm nhân viên' });
+      } else {
+        res.json({ message: 'Thêm nhân viên thành công', id: result.insertId });
+      }
     });
 });
+
+
+app.put('/staff/:id', (req, res) => {
+  const { name, phone, email, position } = req.body;
+  db.query('UPDATE staff SET name = ?, phone = ?, email = ?, position = ? WHERE staffid = ?',
+    [name, phone, email, position, req.params.id], (err) => {
+      if (err) {
+        console.error('Lỗi cập nhật nhân viên:', err);
+        res.status(500).json({ error: 'Lỗi cập nhật nhân viên' });
+      } else {
+        res.json({ message: 'Cập nhật nhân viên thành công' });
+      }
+    });
+});
+
 
 // 5. Quản lý dịch vụ
 app.get('/service', (req, res) => {
