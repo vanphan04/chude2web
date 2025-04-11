@@ -1,11 +1,12 @@
-const cors = require('cors'); // Import cors
 const express = require('express');
+const cors = require('cors');
 const mysql = require('mysql2');
+require('dotenv').config(); // Thêm để dùng biến môi trường
 
 const app = express();
 const PORT = 3000;
-app.use(cors());
 
+// CORS cấu hình
 app.use(cors({
   origin: ['http://localhost:5173'],
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
@@ -14,12 +15,13 @@ app.use(cors({
 
 app.use(express.json());
 
-// Kết nối MySQL
+// Kết nối MySQL dùng biến môi trường
 const db = mysql.createConnection({
-  host: 'localhost',
-  user: 'root',
-  password: '',
-  database: 'qlks'
+  host: process.env.MYSQLHOST || 'localhost',
+  user: process.env.MYSQLUSER || 'root',
+  password: process.env.MYSQLPASSWORD || '',
+  database: process.env.MYSQLDATABASE || 'qlks',
+  port: process.env.MYSQLPORT || 3306
 });
 
 db.connect((err) => {
@@ -73,11 +75,8 @@ app.post('/booking', (req, res) => {
   const { name, phone, roomid, checkin, checkout } = req.body;
   db.query('INSERT INTO booking (name, phone, roomid, checkin, checkout) VALUES (?, ?, ?, ?, ?)',
     [name, phone, roomid, checkin, checkout], (err, result) => {
-      if (err) {
-        res.status(500).json({ error: 'Lỗi đặt phòng' });
-      } else {
-        res.json({ message: 'Đặt phòng thành công', id: result.insertId });
-      }
+      if (err) res.status(500).json({ error: 'Lỗi đặt phòng' });
+      else res.json({ message: 'Đặt phòng thành công', id: result.insertId });
     });
 });
 
@@ -106,15 +105,10 @@ app.post('/customer', (req, res) => {
 });
 
 // 4. Quản lý nhân viên
-// 4. Quản lý nhân viên (sửa lại cho đúng yêu cầu)
 app.get('/staff', (req, res) => {
   db.query('SELECT * FROM staff', (err, results) => {
-    if (err) {
-      console.error('Lỗi lấy danh sách nhân viên:', err);
-      res.status(500).json({ error: 'Lỗi lấy danh sách nhân viên' });
-    } else {
-      res.json(results);
-    }
+    if (err) res.status(500).json({ error: 'Lỗi lấy danh sách nhân viên' });
+    else res.json(results);
   });
 });
 
@@ -122,29 +116,19 @@ app.post('/staff', (req, res) => {
   const { name, phone, email, position } = req.body;
   db.query('INSERT INTO staff (name, phone, email, position) VALUES (?, ?, ?, ?)',
     [name, phone, email, position], (err, result) => {
-      if (err) {
-        console.error('Lỗi thêm nhân viên:', err);
-        res.status(500).json({ error: 'Lỗi thêm nhân viên' });
-      } else {
-        res.json({ message: 'Thêm nhân viên thành công', id: result.insertId });
-      }
+      if (err) res.status(500).json({ error: 'Lỗi thêm nhân viên' });
+      else res.json({ message: 'Thêm nhân viên thành công', id: result.insertId });
     });
 });
-
 
 app.put('/staff/:id', (req, res) => {
   const { name, phone, email, position } = req.body;
-  db.query('UPDATE staff SET name = ?, phone = ?, email = ?, position = ? WHERE staffid = ?',
+  db.query('UPDATE staff SET name=?, phone=?, email=?, position=? WHERE staffid=?',
     [name, phone, email, position, req.params.id], (err) => {
-      if (err) {
-        console.error('Lỗi cập nhật nhân viên:', err);
-        res.status(500).json({ error: 'Lỗi cập nhật nhân viên' });
-      } else {
-        res.json({ message: 'Cập nhật nhân viên thành công' });
-      }
+      if (err) res.status(500).json({ error: 'Lỗi cập nhật nhân viên' });
+      else res.json({ message: 'Cập nhật nhân viên thành công' });
     });
 });
-
 
 // 5. Quản lý dịch vụ
 app.get('/service', (req, res) => {
