@@ -22,7 +22,7 @@
             <v-card-subtitle>Loại: {{ room.roomtype }}</v-card-subtitle>
             <v-card-text>
               Giá: {{ room.price }} VNĐ/đêm <br />
-              Trạng thái: 
+              Trạng thái:
               <v-chip :color="room.status === 'Trống' ? 'green' : 'red'" dark>
                 {{ room.status }}
               </v-chip>
@@ -42,7 +42,7 @@
 
 <script>
 import api from "@/api";
-const response = await api.get('/room');
+
 export default {
   name: "RoomsView",
   data() {

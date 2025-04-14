@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'http://localhost:3000', // Không cần "/room" ở đây
+  baseURL: 'https://backend-qlks-production.up.railway.app/', 
   headers: {
     'Content-Type': 'application/json'
   }
