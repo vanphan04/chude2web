@@ -14,6 +14,7 @@
         </v-col>
       </v-row>
 
+      <!-- Danh sách phòng -->
       <v-row>
         <v-col cols="12" sm="6" md="3" v-for="room in filteredRooms" :key="room.roomid">
           <v-card>
@@ -28,8 +29,18 @@
               </v-chip>
             </v-card-text>
             <v-card-actions>
-              <v-btn color="blue" @click="openBookingDialog(room)">
+              <v-btn
+                :color="room.status === 'Trống' ? 'blue' : 'red'"
+                @click="room.status === 'Trống' ? openBookingDialog(room) : cancelBooking(room)"
+              >
                 {{ room.status === 'Trống' ? 'Đặt ngay' : 'Hủy đặt' }}
+              </v-btn>
+              <v-btn
+                v-if="room.status === 'Đã đặt'"
+                color="green"
+                @click="openPaymentDialog(room)"
+              >
+                Thanh toán
               </v-btn>
               <v-btn v-if="role === 'admin'" color="primary" @click="openEditDialog(room)">Chỉnh sửa</v-btn>
             </v-card-actions>
@@ -37,6 +48,43 @@
         </v-col>
       </v-row>
     </v-card>
+
+    <!-- Dialog đặt phòng -->
+    <v-dialog v-model="bookingDialog" max-width="500px">
+      <v-card>
+        <v-card-title>Đặt phòng số {{ selectedRoom?.roomid }}</v-card-title>
+        <v-card-text>
+          <v-text-field v-model="bookingForm.name" label="Tên khách hàng" required />
+          <v-text-field v-model="bookingForm.phone" label="Số điện thoại" required />
+          <v-text-field v-model="bookingForm.checkin" label="Ngày nhận phòng" type="date" required />
+          <v-text-field v-model="bookingForm.checkout" label="Ngày trả phòng" type="date" required />
+        </v-card-text>
+        <v-card-actions>
+          <v-btn color="primary" @click="confirmBooking">Xác nhận</v-btn>
+          <v-btn text @click="bookingDialog = false">Hủy</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <!-- Dialog thanh toán -->
+    <v-dialog v-model="paymentDialog" max-width="500px">
+      <v-card>
+        <v-card-title>Thanh toán phòng {{ selectedRoom?.roomid }}</v-card-title>
+        <v-card-text>
+          <v-text-field
+            v-model="paymentForm.amount"
+            label="Số tiền thanh toán"
+            :value="selectedRoom?.price"
+            disabled
+          />
+          <v-text-field v-model="paymentForm.paymentMethod" label="Phương thức thanh toán" required />
+        </v-card-text>
+        <v-card-actions>
+          <v-btn color="green" @click="confirmPayment">Thanh toán</v-btn>
+          <v-btn text @click="paymentDialog = false">Hủy</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-container>
 </template>
 
@@ -50,7 +98,20 @@ export default {
       rooms: [],
       filterStatus: "Tất cả",
       filterType: "Tất cả",
-      role: "admin", // Giả sử có phân quyền (có thể lấy từ Vuex hoặc API)
+      role: "admin", // Giả lập phân quyền
+      bookingDialog: false,
+      paymentDialog: false,
+      selectedRoom: null,
+      bookingForm: {
+        name: "",
+        phone: "",
+        checkin: "",
+        checkout: "",
+      },
+      paymentForm: {
+        amount: 0,
+        paymentMethod: "",
+      },
     };
   },
   computed: {
@@ -81,12 +142,69 @@ export default {
       }
     },
     openBookingDialog(room) {
-      console.log("Đặt phòng:", room);
-      // Xử lý logic đặt phòng
+      this.selectedRoom = room;
+      this.bookingForm = {
+        name: "",
+        phone: "",
+        checkin: "",
+        checkout: "",
+      };
+      this.bookingDialog = true;
+    },
+    async confirmBooking() {
+      try {
+        const payload = {
+          ...this.bookingForm,
+          roomid: this.selectedRoom.roomid,
+        };
+        const response = await api.post("/booking", payload);
+        this.bookingDialog = false;
+        this.loadRooms();
+        alert("✅ Đặt phòng thành công!");
+      } catch (err) {
+        alert("❌ Lỗi khi đặt phòng");
+        console.error(err);
+      }
+    },
+    async cancelBooking(room) {
+      try {
+        await api.put(`/room/${room.roomid}`, {
+          ...room,
+          status: "available",
+        });
+        this.loadRooms();
+        alert("✅ Đã hủy đặt phòng");
+      } catch (err) {
+        console.error("❌ Lỗi khi hủy đặt phòng:", err);
+      }
+    },
+    openPaymentDialog(room) {
+      this.selectedRoom = room;
+      this.paymentForm = {
+        amount: room.price,
+        paymentMethod: "",
+      };
+      this.paymentDialog = true;
+    },
+    async confirmPayment() {
+      try {
+        const payload = {
+          roomid: this.selectedRoom.roomid,
+          amount: this.paymentForm.amount,
+          paymentMethod: this.paymentForm.paymentMethod,
+        };
+        await api.post("/payment", payload); // Tạo route thanh toán trên backend
+        this.paymentDialog = false;
+        this.loadRooms();
+        alert("✅ Thanh toán thành công!");
+      } catch (err) {
+        alert("❌ Lỗi khi thanh toán");
+        console.error(err);
+      }
     },
     openEditDialog(room) {
       console.log("Chỉnh sửa phòng:", room);
-      // Xử lý logic chỉnh sửa
+      // TODO: Mở form chỉnh sửa
     },
   },
 };

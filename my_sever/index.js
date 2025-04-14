@@ -22,7 +22,6 @@ const db = mysql.createPool({
   database: 'railway'
 });
 
-
 // ROUTES
 app.get('/', (req, res) => {
   res.send('🚀 API Backend đang chạy!');
@@ -68,6 +67,18 @@ app.delete('/room/:id', async (req, res) => {
   }
 });
 
+// API hủy đặt phòng: cập nhật trạng thái phòng về "available"
+app.put('/room/:id/cancel', async (req, res) => {
+  const roomId = req.params.id;
+  try {
+    const [result] = await db.query('UPDATE room SET status = "available" WHERE roomid = ?', [roomId]);
+    res.json({ message: 'Đã hủy đặt phòng, phòng hiện ở trạng thái trống.' });
+  } catch (err) {
+    console.error('❌ Lỗi khi hủy đặt phòng:', err);
+    res.status(500).json({ error: 'Lỗi khi hủy đặt phòng' });
+  }
+});
+
 // 2. Quản lý đặt phòng
 app.post('/booking', async (req, res) => {
   const { name, phone, roomid, checkin, checkout } = req.body;
@@ -91,7 +102,6 @@ app.post('/booking', async (req, res) => {
     res.status(500).json({ message: 'Lỗi máy chủ' });
   }
 });
-
 
 app.get('/booking', async (req, res) => {
   try {
@@ -191,6 +201,24 @@ app.post('/bill', async (req, res) => {
   } catch (err) {
     res.status(500).json({ error: 'Lỗi tạo hóa đơn' });
   }
+});
+// Thanh toán
+app.post("/payment", (req, res) => {
+  const { billid, amount, payment_method } = req.body;
+  const insertQuery = `INSERT INTO payment (billid, amount, payment_method) VALUES (?, ?, ?)`;
+
+  db.query(insertQuery, [billid, amount, payment_method], (err, result) => {
+    if (err) return res.status(500).send(err);
+    res.json({ message: "Thanh toán thành công!", paymentid: result.insertId });
+  });
+});
+
+// API lấy danh sách thanh toán
+app.get("/payment", (req, res) => {
+  db.query("SELECT * FROM payment", (err, result) => {
+    if (err) return res.status(500).send(err);
+    res.json(result);
+  });
 });
 
 // Khởi động server
