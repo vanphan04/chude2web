@@ -2,10 +2,10 @@
 -- version 5.0.2
 -- https://www.phpmyadmin.net/
 --
--- Host: 127.0.0.1:3306
--- Generation Time: Apr 03, 2025 at 03:13 PM
--- Server version: 5.7.31
--- PHP Version: 7.3.21
+-- Máy chủ: 127.0.0.1:3306
+-- Thời gian đã tạo: Th4 19, 2025 lúc 04:25 AM
+-- Phiên bản máy phục vụ: 5.7.31
+-- Phiên bản PHP: 7.4.9
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -18,13 +18,13 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `qlks`
+-- Cơ sở dữ liệu: `qlks`
 --
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `bill`
+-- Cấu trúc bảng cho bảng `bill`
 --
 
 DROP TABLE IF EXISTS `bill`;
@@ -32,15 +32,17 @@ CREATE TABLE IF NOT EXISTS `bill` (
   `billid` int(11) NOT NULL AUTO_INCREMENT,
   `amount` varchar(50) NOT NULL,
   `paymentdate` date NOT NULL,
-  `method` varchar(50) NOT NULL,
   `bookid` int(11) NOT NULL,
-  PRIMARY KEY (`billid`)
+  `methodid` int(11) NOT NULL,
+  PRIMARY KEY (`billid`),
+  KEY `fk_bill_method` (`methodid`),
+  KEY `fk_bill_booking` (`bookid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `booking`
+-- Cấu trúc bảng cho bảng `booking`
 --
 
 DROP TABLE IF EXISTS `booking`;
@@ -57,24 +59,27 @@ CREATE TABLE IF NOT EXISTS `booking` (
   KEY `roomid` (`roomid`),
   KEY `cusid` (`cusid`),
   KEY `staffid` (`staffid`)
-) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=38 DEFAULT CHARSET=utf8;
 
 --
--- Dumping data for table `booking`
+-- Đang đổ dữ liệu cho bảng `booking`
 --
 
 INSERT INTO `booking` (`bookid`, `checkin`, `checkout`, `roomid`, `cusid`, `staffid`, `name`, `phone`) VALUES
-(12, '2025-04-02', '2025-04-11', 2, NULL, NULL, 'NGuyên', '0111111111'),
-(13, '2025-04-11', '2025-04-18', 1, NULL, NULL, 'ádsd', '0123456789'),
-(14, '2025-04-24', '2025-04-29', 3, NULL, NULL, 'fg', '0111111111'),
-(15, '2025-04-29', '2025-04-30', 1, NULL, NULL, 'Phan Thanh Văn', '0868254679'),
-(16, '2025-04-15', '2025-04-18', 1, NULL, NULL, 'fghfghfg', '0868254679'),
-(17, '2025-04-29', '2025-04-30', 3, NULL, NULL, 'haha', '0868254679');
+(29, '2025-04-08', '2025-04-17', 3, NULL, NULL, 'Phan Thành Văn', '0868254679'),
+(30, '2025-04-01', '2025-04-18', 3, NULL, NULL, 'dg', '0222222222'),
+(31, '2025-04-15', '2025-04-19', 2, NULL, NULL, 'dfh', '0222222222'),
+(32, '2025-04-14', '2025-04-24', 2, NULL, NULL, 'ghghg', '0222222111'),
+(33, '2025-04-17', '2025-04-29', 2, NULL, NULL, 'fghfg', '0222222222'),
+(34, '2025-04-15', '2025-05-01', 2, NULL, NULL, 'dfgdf', '0545400124'),
+(35, '2025-04-03', '2025-04-24', 2, NULL, NULL, 'dfg', '0222222222'),
+(36, '2025-04-07', '2025-04-25', 2, NULL, NULL, 'ghf', '0868254679'),
+(37, '2025-04-16', '2025-04-30', 2, NULL, NULL, 'dfg', '0868254679');
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `customer`
+-- Cấu trúc bảng cho bảng `customer`
 --
 
 DROP TABLE IF EXISTS `customer`;
@@ -89,7 +94,28 @@ CREATE TABLE IF NOT EXISTS `customer` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `room`
+-- Cấu trúc bảng cho bảng `payment_method`
+--
+
+DROP TABLE IF EXISTS `payment_method`;
+CREATE TABLE IF NOT EXISTS `payment_method` (
+  `methodid` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(50) NOT NULL,
+  PRIMARY KEY (`methodid`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
+
+--
+-- Đang đổ dữ liệu cho bảng `payment_method`
+--
+
+INSERT INTO `payment_method` (`methodid`, `name`) VALUES
+(1, 'Chuyển khoản'),
+(2, 'Tiền mặt');
+
+-- --------------------------------------------------------
+
+--
+-- Cấu trúc bảng cho bảng `room`
 --
 
 DROP TABLE IF EXISTS `room`;
@@ -103,18 +129,18 @@ CREATE TABLE IF NOT EXISTS `room` (
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
 
 --
--- Dumping data for table `room`
+-- Đang đổ dữ liệu cho bảng `room`
 --
 
 INSERT INTO `room` (`roomid`, `roomtype`, `price`, `status`, `image`) VALUES
-(1, 'Đôi', '800.000', 'Đã đặt', ''),
-(2, 'Don', '500000', 'Đặt ngay', ''),
-(3, '3', '10000', 'available', '');
+(1, 'Đơn', '800000', 'booked', ''),
+(2, 'Đôi', '500000', 'available', ''),
+(3, 'Đơn', '800000', 'available', '');
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `service`
+-- Cấu trúc bảng cho bảng `service`
 --
 
 DROP TABLE IF EXISTS `service`;
@@ -128,7 +154,7 @@ CREATE TABLE IF NOT EXISTS `service` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `serviceusage`
+-- Cấu trúc bảng cho bảng `serviceusage`
 --
 
 DROP TABLE IF EXISTS `serviceusage`;
@@ -145,7 +171,7 @@ CREATE TABLE IF NOT EXISTS `serviceusage` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `staff`
+-- Cấu trúc bảng cho bảng `staff`
 --
 
 DROP TABLE IF EXISTS `staff`;
@@ -156,20 +182,32 @@ CREATE TABLE IF NOT EXISTS `staff` (
   `email` varchar(255) NOT NULL,
   `position` varchar(255) NOT NULL,
   PRIMARY KEY (`staffid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8;
 
 --
--- Constraints for dumped tables
+-- Đang đổ dữ liệu cho bảng `staff`
+--
+
+INSERT INTO `staff` (`staffid`, `name`, `phone`, `email`, `position`) VALUES
+(1, 'dghdfhffaaaaa', '0868254679', 'hgh', 'Nhân viên'),
+(2, 'fgdfg', 'dfgdfg', 'dfgdfg', 'Nhân viên'),
+(3, 'dfgfdg', 'gdfgfd', 'dfgdf', 'Quản lý'),
+(4, 'dfgd', 'dfgdfg', 'fgdfg', 'Admin'),
+(5, 'fdgd', 'fdg', 'fgdfg', 'Nhân viên');
+
+--
+-- Các ràng buộc cho các bảng đã đổ
 --
 
 --
--- Constraints for table `bill`
+-- Các ràng buộc cho bảng `bill`
 --
 ALTER TABLE `bill`
-  ADD CONSTRAINT `bill_ibfk_1` FOREIGN KEY (`billid`) REFERENCES `booking` (`bookid`);
+  ADD CONSTRAINT `fk_bill_booking` FOREIGN KEY (`bookid`) REFERENCES `booking` (`bookid`),
+  ADD CONSTRAINT `fk_bill_method` FOREIGN KEY (`methodid`) REFERENCES `payment_method` (`methodid`);
 
 --
--- Constraints for table `booking`
+-- Các ràng buộc cho bảng `booking`
 --
 ALTER TABLE `booking`
   ADD CONSTRAINT `booking_ibfk_1` FOREIGN KEY (`roomid`) REFERENCES `room` (`roomid`),
@@ -177,7 +215,7 @@ ALTER TABLE `booking`
   ADD CONSTRAINT `booking_ibfk_3` FOREIGN KEY (`staffid`) REFERENCES `staff` (`staffid`);
 
 --
--- Constraints for table `serviceusage`
+-- Các ràng buộc cho bảng `serviceusage`
 --
 ALTER TABLE `serviceusage`
   ADD CONSTRAINT `serviceusage_ibfk_1` FOREIGN KEY (`bookid`) REFERENCES `booking` (`bookid`),

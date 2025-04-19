@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'https://backend-qlks-production.up.railway.app/', 
+  baseURL: 'http://localhost:3000/',//'https://backend-qlks-production.up.railway.app/', 
   headers: {
     'Content-Type': 'application/json'
   }

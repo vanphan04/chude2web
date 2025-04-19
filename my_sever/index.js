@@ -1,6 +1,6 @@
 const cors = require('cors');
 const express = require('express');
-const mysql = require('mysql2/promise'); // Sử dụng promise để await
+const mysql = require('mysql2/promise');
 
 const app = express();
 const PORT = 3000;
@@ -13,14 +13,14 @@ app.use(cors({
 
 app.use(express.json());
 
-// Kết nối MySQL
 const db = mysql.createPool({
-  host: 'gondola.proxy.rlwy.net',
-  port: 34491,
+  host: 'localhost',
+  port: 3306,
   user: 'root',
-  password: 'GHinzlDxpgKJtAXSpVxkVPLmWOLuteNQ',
-  database: 'railway'
+  password: '', // nếu bạn có mật khẩu thì nhập vào đây
+  database: 'qlks'
 });
+
 
 // ROUTES
 app.get('/', (req, res) => {
@@ -67,11 +67,10 @@ app.delete('/room/:id', async (req, res) => {
   }
 });
 
-// API hủy đặt phòng: cập nhật trạng thái phòng về "available"
 app.put('/room/:id/cancel', async (req, res) => {
   const roomId = req.params.id;
   try {
-    const [result] = await db.query('UPDATE room SET status = "available" WHERE roomid = ?', [roomId]);
+    await db.query('UPDATE room SET status = "available" WHERE roomid = ?', [roomId]);
     res.json({ message: 'Đã hủy đặt phòng, phòng hiện ở trạng thái trống.' });
   } catch (err) {
     console.error('❌ Lỗi khi hủy đặt phòng:', err);
@@ -81,7 +80,7 @@ app.put('/room/:id/cancel', async (req, res) => {
 
 // 2. Quản lý đặt phòng
 app.post('/booking', async (req, res) => {
-  const { name, phone, roomid, checkin, checkout } = req.body;
+  const { roomid, checkin, checkout } = req.body;
   console.log("📥 Nhận đặt phòng:", req.body);
 
   try {
@@ -91,10 +90,10 @@ app.post('/booking', async (req, res) => {
     if (!roomStatus.length) return res.status(404).json({ message: 'Không tìm thấy phòng' });
     if (roomStatus[0].status === 'booked') return res.status(400).json({ message: 'Phòng đã được đặt!' });
 
-    await db.query('INSERT INTO booking (name, phone, roomid, checkin, checkout) VALUES (?, ?, ?, ?, ?)', [name, phone, roomid, checkin, checkout]);
-    const [updateResult] = await db.query('UPDATE room SET status = "booked" WHERE roomid = ?', [roomid]);
+    // Chỉ thêm dữ liệu booking đơn giản (bảng booking không có name, phone)
+    await db.query('INSERT INTO booking (roomid, checkin, checkout) VALUES (?, ?, ?)', [roomid, checkin, checkout]);
 
-    console.log("✅ Kết quả cập nhật trạng thái phòng:", updateResult);
+    await db.query('UPDATE room SET status = "booked" WHERE roomid = ?', [roomid]);
 
     res.json({ message: 'Đặt phòng thành công' });
   } catch (error) {
@@ -145,8 +144,13 @@ app.get('/staff', async (req, res) => {
 app.post('/staff', async (req, res) => {
   const { name, phone, email, position } = req.body;
   try {
-    const [result] = await db.query('INSERT INTO staff (name, phone, email, position) VALUES (?, ?, ?, ?)', [name, phone, email, position]);
-    res.json({ message: 'Thêm nhân viên thành công', id: result.insertId });
+    const { roomid, name, phone, checkin, checkout } = req.body;
+
+await db.query(
+  'INSERT INTO booking (roomid, name, phone, checkin, checkout) VALUES (?, ?, ?, ?, ?)',
+  [roomid, name, phone, checkin, checkout]
+);
+
   } catch (err) {
     res.status(500).json({ error: 'Lỗi thêm nhân viên' });
   }
@@ -202,6 +206,7 @@ app.post('/bill', async (req, res) => {
     res.status(500).json({ error: 'Lỗi tạo hóa đơn' });
   }
 });
+
 // Thanh toán
 app.post("/payment", (req, res) => {
   const { billid, amount, payment_method } = req.body;
@@ -213,7 +218,6 @@ app.post("/payment", (req, res) => {
   });
 });
 
-// API lấy danh sách thanh toán
 app.get("/payment", (req, res) => {
   db.query("SELECT * FROM payment", (err, result) => {
     if (err) return res.status(500).send(err);
@@ -221,7 +225,7 @@ app.get("/payment", (req, res) => {
   });
 });
 
-// Khởi động server
+// Start server
 app.listen(PORT, () => {
   console.log(`🚀 Server đang chạy tại http://localhost:${PORT}`);
 });
