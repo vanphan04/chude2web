@@ -1,6 +1,8 @@
 const cors = require('cors');
 const express = require('express');
+// const dotenv = require('dotenv');
 const mysql = require('mysql2/promise');
+// dotenv.config();
 
 const app = express();
 const PORT = 3000;
@@ -18,7 +20,7 @@ const db = mysql.createPool({
   port: 3306,
   user: 'root',
   password: '', // nếu bạn có mật khẩu thì nhập vào đây
-  database: 'qlks'
+  database: 'hotelmanagement'
 });
 
 
@@ -26,6 +28,19 @@ const db = mysql.createPool({
 app.get('/', (req, res) => {
   res.send('🚀 API Backend đang chạy!');
 });
+
+// Login
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+app.use('/api',require('./router/loginRoute'));
+
+// Quản lý quyền
+app.use('/api/role', require('./router/roleRoute'));
+
+// Quản lý staff
+app.use('/api/staff',require('./router/userRoute'));
+
 
 // 1. Quản lý phòng
 app.get('/room', async (req, res) => {

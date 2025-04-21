@@ -12,7 +12,7 @@ const routes = [
   { path: "/rooms", component: Rooms, meta: { requiresAuth: true } },
   { path: "/reservations", component: Reservations, meta: { requiresAuth: true } },
   { path: "/customers", component: Customers, meta: { requiresAuth: true } },
-  { path: "/employees", component: Employees, meta: { requiresAuth: true, roles: ["admin"] } } // ❗ CHỈ ADMIN mới vào được
+  { path: "/employees", component: Employees, meta: { requiresAuth: true, roles: [3] } }
 ];
 
 const router = createRouter({
@@ -23,7 +23,7 @@ const router = createRouter({
 // 🔹 Kiểm tra quyền truy cập trước khi vào route
 router.beforeEach((to, from, next) => {
   const token = localStorage.getItem("token");
-  const role = localStorage.getItem("role");
+  const role = parseInt(localStorage.getItem("role")); 
 
   if (to.meta.requiresAuth) {
     if (!token) {
