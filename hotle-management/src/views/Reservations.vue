@@ -25,6 +25,7 @@
           v-model="reservation.room"
           item-title="name"
           item-value="id"
+          :rules="[rules.required]"
           required
         ></v-select>
 
@@ -32,6 +33,7 @@
           label="Ngày nhận phòng"
           v-model="reservation.checkInDate"
           type="date"
+          :rules="[rules.required]"
           required
         ></v-text-field>
 
@@ -39,6 +41,7 @@
           label="Ngày trả phòng"
           v-model="reservation.checkOutDate"
           type="date"
+          :rules="[rules.required]"
           required
         ></v-text-field>
 
@@ -51,6 +54,10 @@
 
       <v-snackbar v-model="snackbar" :timeout="3000" color="green">
         {{ successMessage }}
+      </v-snackbar>
+
+      <v-snackbar v-model="errorSnackbar" :timeout="3000" color="red">
+        {{ errorMessage }}
       </v-snackbar>
     </v-card>
   </v-container>
@@ -71,37 +78,36 @@ export default {
       rooms: [
         {
           id: 1,
-          name: 'Phòng Deluxe',
+          name: 'Phòng Đơn',
           type: 'Đơn',
           price: 500000,
-          image: 'https://via.placeholder.com/200',
         },
         {
           id: 2,
-          name: 'Phòng VIP',
+          name: 'Phòng Đôi',
           type: 'Đôi',
           price: 800000,
-          image: 'https://via.placeholder.com/200',
         },
         {
           id: 3,
           name: 'Phòng Family',
           type: 'Gia đình',
           price: 1200000,
-          image: 'https://bizweb.dktcdn.net/100/363/864/products/2w0a0109.jpg?v=1644744386330',
         },
       ],
       snackbar: false,
       successMessage: '',
+      errorSnackbar: false,
+      errorMessage: '',
       rules: {
-        required: (value) => !!value || 'Trường hợp này không được để trống',
-        phone: (value) => /^0\d{9}$/.test(value) || 'Số điện thoại không hợp lệ',
+        required: value => !!value || 'Trường này không được để trống',
+        phone: value => /^0\d{9}$/.test(value) || 'Số điện thoại không hợp lệ',
       },
-    }
+    };
   },
   computed: {
     selectedRoom() {
-      return this.rooms.find((room) => room.id === this.reservation.room)
+      return this.rooms.find(room => room.id === this.reservation.room);
     },
   },
   methods: {
@@ -112,29 +118,34 @@ export default {
         room: null,
         checkInDate: '',
         checkOutDate: '',
-      }
-      this.$refs.form.reset() // Reset lại form nếu sử dụng Vuetify form
+      };
+      this.$refs.form.reset();
     },
-
     submitReservation() {
       if (this.$refs.form.validate()) {
-        this.successMessage = `Đặt phòng thành công cho ${this.reservation.name}, Phòng: ${this.selectedRoom.name}`
         this.$axios
-          .post('http://localhost:3000/booking', {
+          .post('http://localhost:3000/reservations', {
             name: this.reservation.name,
             phone: this.reservation.phone,
             roomid: this.reservation.room,
             checkin: this.reservation.checkInDate,
             checkout: this.reservation.checkOutDate,
           })
-          .then((response) => {
-            this.snackbar = true
-            this.resetForm()
+          .then((res) => {
+            this.successMessage = res.data.message;
+            this.snackbar = true;
+            this.resetForm();
           })
+          .catch((err) => {
+            this.errorMessage =
+              err.response?.data?.message || 'Đặt phòng thất bại';
+            this.errorSnackbar = true;
+            console.error('Lỗi đặt phòng:', err);
+          });
       }
     },
   },
-}
+};
 </script>
 
 <style scoped>
