@@ -1,11 +1,11 @@
-import axios from 'axios';
+import axios from "axios";
 
 const api = axios.create({
-  baseURL: 'http://localhost:3000/',//'https://backend-qlks-production.up.railway.app/', 
-  headers: {
-    'Content-Type': 'application/json'
-  }
+  baseURL: "http://localhost:3000", // đúng PORT backend của bạn
 });
+
+export default api;
+
 
 // Thêm token vào header nếu có
 api.interceptors.request.use(config => {
@@ -16,4 +16,4 @@ api.interceptors.request.use(config => {
   return config;
 });
 
-export default api;
+
