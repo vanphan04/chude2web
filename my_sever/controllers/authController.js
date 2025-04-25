@@ -22,23 +22,26 @@ exports.LoginHehe = async (req, res) => {
       return res.status(401).json({ message: "Sai tài khoản hoặc mật khẩu" });
     }
 
-    const payload = {id: user.StaffID, fullName: user.FullName, role: user.RoleID, Email: user.Email};
+    const payload = {
+      id: user.StaffID,
+      fullName: user.FullName,
+      role: user.RoleID,
+      Email: user.Email,
+    };
 
     const token = jwt.sign(payload, process.env.JWT_SECRET);
 
-    res.json({accessToken: token,role: user.RoleID,StaffID: user.StaffID});
-
+    res.json({ accessToken: token, role: user.RoleID, StaffID: user.StaffID });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Lỗi server' });
+    res.status(500).json({ message: "Lỗi server" });
   }
 };
 
-
 // Protected route controller
 exports.protected = (req, res) => {
-    res.json({
-      message: 'Chào bạn, bạn đã truy cập API bảo vệ!',
-      user: req.user
-    });
-  };
+  res.json({
+    message: "Chào bạn, bạn đã truy cập API bảo vệ!",
+    user: req.user,
+  });
+};
