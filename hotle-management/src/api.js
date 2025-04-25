@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "http://localhost:3000", // đúng PORT backend của bạn
+  baseURL: "https://backend-qlks-production.up.railway.app", // đúng PORT backend của bạn
 });
 
 export default api;
